@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <title>FONDAMENTO</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        button { min-height: 44px; cursor: pointer; }
+        input, textarea { font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+
+        // DONNÉES MOCK
+        const mockUser = {
+            prenom: "Marc", nom: "Dubois",
+            stats: { noteGlobale: 4.8, nbAvis: 47, introsReussies: 47, tempsReponse: "2h", 
+                    proBono: 80, besoinsPostes: 8, propositionsRecues: 23, echangesReussis: 5 },
+            badges: ["Super Connector", "Réponse Rapide"]
+        };
+
+        const mockBesoins = [
+            { id: 1, demandeur: "Jean D.", besoin: "Je cherche un contact chez Intel pour une opportunité B2B dans l'IA", 
+              secteur: "Tech", note: 4.5 },
+            { id: 2, demandeur: "Sophie M.", besoin: "Expert finance pour levée de fonds série A", 
+              secteur: "Finance", note: 4.9 },
+        ];
+
+        const mockPropositions = [
+            { id: 1, nom: "Marc D.", titre: "Entrepreneur Tech", note: 4.8, nbIntros: 47,
+              reseau: ["Intel", "Google"], bio: "Entrepreneur tech depuis 8 ans.", 
+              badges: ["Super Connector"], 
+              references: [{ auteur: "Sophie M.", note: 5, texte: "Super contact !", contexte: "Contact Google" }]
+            }
+        ];
+
+        // STYLES RESPONSIVES
+        const isMobile = window.innerWidth <= 768;
+        
+        const styles = {
+            button: {
+                width: '100%', padding: isMobile ? '16px' : '18px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white', border: 'none', borderRadius: '15px',
+                fontSize: isMobile ? '16px' : '18px', fontWeight: '600'
+            },
+            card: {
+                background: 'rgba(255, 255, 255, 0.95)', 
+                borderRadius: isMobile ? '20px' : '30px',
+                padding: isMobile ? '24px 20px' : '40px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }
+        };
+
+        function App() {
+            const [page, setPage] = useState('home');
+            const [user, setUser] = useState(null);
+            const [besoinText, setBesoinText] = useState('');
+            const [showProps, setShowProps] = useState(false);
+            const [besoinIdx, setBesoinIdx] = useState(0);
+
+            // HOME
+            if (page === 'home') {
+                return (
+                    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', 
+                                 justifyContent: 'center', padding: '20px' }}>
+                        <div style={{ ...styles.card, maxWidth: '500px', width: '100%', textAlign: 'center' }}>
+                            <h1 style={{ fontSize: isMobile ? '36px' : '48px',
+                                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                       WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                                       fontWeight: '800', marginBottom: '16px' }}>
+                                FONDAMENTO
+                            </h1>
+                            <p style={{ color: '#666', fontSize: isMobile ? '16px' : '18px', 
+                                       marginBottom: '40px' }}>
+                                Le réseau professionnel<br/>qui va à l'essentiel
+                            </p>
+                            <button onClick={() => setPage('signup')} 
+                                    style={{ ...styles.button, marginBottom: '16px' }}>
+                                ✨ Créer mon compte
+                            </button>
+                            <button onClick={() => { setUser(mockUser); setPage('dashboard'); }}
+                                    style={{ ...styles.button, background: 'white', color: '#667eea', 
+                                           border: '2px solid #667eea' }}>
+                                Se connecter (DÉMO)
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // SIGNUP
+            if (page === 'signup') {
+                return (
+                    <div style={{ minHeight: '100vh', padding: '20px' }}>
+                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                            <button onClick={() => setPage('home')} 
+                                    style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.9)',
+                                           color: '#667eea', border: 'none', borderRadius: '12px',
+                                           marginBottom: '20px', fontWeight: '600' }}>
+                                ← Retour
+                            </button>
+                            <div style={styles.card}>
+                                <h2 style={{ fontSize: isMobile ? '24px' : '32px', color: '#333', 
+                                           marginBottom: '16px', fontWeight: '700' }}>
+                                    Créer mon compte
+                                </h2>
+                                <p style={{ color: '#666', marginBottom: '24px' }}>
+                                    L'inscription sera disponible avec le backend.<br/>
+                                    Utilisez la démo pour tester.
+                                </p>
+                                <button onClick={() => { setUser(mockUser); setPage('dashboard'); }}
+                                        style={styles.button}>
+                                    Continuer en mode démo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // DASHBOARD
+            if (page === 'dashboard' && user) {
+                return (
+                    <div style={{ minHeight: '100vh', padding: isMobile ? '16px' : '24px' }}>
+                        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                            <div style={{ ...styles.card, marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', 
+                                            alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                    <h1 style={{ fontSize: isMobile ? '24px' : '32px',
+                                               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                                               fontWeight: '800' }}>
+                                        FONDAMENTO
+                                    </h1>
+                                    <button onClick={() => { setUser(null); setPage('home'); }}
+                                            style={{ padding: '10px 20px', background: 'white', 
+                                                   color: '#667eea', border: '2px solid #667eea',
+                                                   borderRadius: '12px', fontWeight: '600' }}>
+                                        Déconnexion
+                                    </button>
+                                </div>
+                                <h2 style={{ fontSize: isMobile ? '20px' : '28px', color: '#333', 
+                                           marginBottom: '12px' }}>
+                                    Bonjour {user.prenom} ! 👋
+                                </h2>
+                                <div style={{ marginBottom: '24px' }}>
+                                    <span style={{ background: '#fef3c7', padding: '6px 14px', 
+                                                 borderRadius: '20px', fontSize: '14px', 
+                                                 fontWeight: '700', color: '#92400e' }}>
+                                        ⭐ {user.stats.noteGlobale}/5
+                                    </span>
+                                </div>
+                                <div style={{ display: 'grid', gap: '15px', 
+                                            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)' }}>
+                                    <button onClick={() => setPage('poster')} style={styles.button}>
+                                        🎯 Poster un besoin
+                                    </button>
+                                    <button onClick={() => setPage('voir')} 
+                                            style={{ ...styles.button, 
+                                                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}>
+                                        💪 Aider quelqu'un
+                                    </button>
+                                </div>
+                            </div>
+                            <div style={styles.card}>
+                                <h3 style={{ fontSize: isMobile ? '20px' : '24px', marginBottom: '20px' }}>
+                                    📊 Mon activité
+                                </h3>
+                                <div style={{ display: 'grid', gap: '15px', 
+                                            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)' }}>
+                                    <div style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                               padding: '24px', borderRadius: '16px', color: 'white' }}>
+                                        <div style={{ fontSize: '36px', fontWeight: '800' }}>
+                                            {user.stats.introsReussies}
+                                        </div>
+                                        <div>intros réussies</div>
+                                    </div>
+                                    <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                               padding: '24px', borderRadius: '16px', color: 'white' }}>
+                                        <div style={{ fontSize: '36px', fontWeight: '800' }}>
+                                            {user.stats.echangesReussis}
+                                        </div>
+                                        <div>échanges réussis</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // POSTER BESOIN
+            if (page === 'poster') {
+                return (
+                    <div style={{ minHeight: '100vh', padding: '20px' }}>
+                        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                            <button onClick={() => { setPage('dashboard'); setShowProps(false); setBesoinText(''); }}
+                                    style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.9)',
+                                           color: '#667eea', border: 'none', borderRadius: '12px',
+                                           marginBottom: '20px', fontWeight: '600' }}>
+                                ← Retour
+                            </button>
+                            
+                            {!showProps ? (
+                                <div style={styles.card}>
+                                    <h2 style={{ fontSize: isMobile ? '24px' : '32px', marginBottom: '16px' }}>
+                                        🎯 Poster un besoin
+                                    </h2>
+                                    <textarea
+                                        value={besoinText}
+                                        onChange={(e) => setBesoinText(e.target.value)}
+                                        placeholder="Ex: Je cherche un contact chez Intel..."
+                                        rows="5"
+                                        style={{ width: '100%', padding: '16px', borderRadius: '14px',
+                                               border: '2px solid #e5e7eb', fontSize: '16px',
+                                               fontFamily: 'inherit', marginBottom: '20px', minHeight: '120px' }}
+                                    />
+                                    <button onClick={() => setShowProps(true)} 
+                                            disabled={!besoinText.trim()}
+                                            style={{ ...styles.button, 
+                                                   opacity: besoinText.trim() ? 1 : 0.5,
+                                                   cursor: besoinText.trim() ? 'pointer' : 'not-allowed' }}>
+                                        Publier mon besoin
+                                    </button>
+                                </div>
+                            ) : (
+                                <>
+                                    <div style={{ ...styles.card, marginBottom: '20px' }}>
+                                        <h2 style={{ fontSize: isMobile ? '22px' : '28px', marginBottom: '12px' }}>
+                                            ✨ Propositions reçues
+                                        </h2>
+                                        <p style={{ color: '#666', marginBottom: '12px' }}>
+                                            Votre besoin : <strong>{besoinText}</strong>
+                                        </p>
+                                        <p style={{ color: '#10b981', fontWeight: '700' }}>
+                                            {mockPropositions.length} personnes peuvent vous aider !
+                                        </p>
+                                    </div>
+                                    {mockPropositions.map(prop => (
+                                        <div key={prop.id} style={{ ...styles.card, marginBottom: '20px' }}>
+                                            <h3 style={{ fontSize: '20px', marginBottom: '8px' }}>{prop.nom}</h3>
+                                            <p style={{ color: '#666', marginBottom: '12px' }}>{prop.titre}</p>
+                                            <p style={{ marginBottom: '16px' }}>{prop.bio}</p>
+                                            <button onClick={() => alert('Chat : Disponible dans version finale avec backend')}
+                                                    style={styles.button}>
+                                                💬 Contacter
+                                            </button>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                );
+            }
+
+            // VOIR BESOINS
+            if (page === 'voir') {
+                const besoin = mockBesoins[besoinIdx];
+                return (
+                    <div style={{ minHeight: '100vh', padding: '20px' }}>
+                        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                            <button onClick={() => setPage('dashboard')}
+                                    style={{ padding: '12px 24px', background: 'rgba(255,255,255,0.9)',
+                                           color: '#667eea', border: 'none', borderRadius: '12px',
+                                           marginBottom: '20px', fontWeight: '600' }}>
+                                ← Retour
+                            </button>
+                            <div style={{ ...styles.card, minHeight: '500px' }}>
+                                <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+                                    <div style={{ fontSize: '64px', marginBottom: '16px' }}>👤</div>
+                                    <h3 style={{ fontSize: '22px', marginBottom: '12px' }}>
+                                        {besoin.demandeur}
+                                    </h3>
+                                    <span style={{ background: '#fef3c7', padding: '8px 16px',
+                                                 borderRadius: '20px', fontSize: '14px' }}>
+                                        ⭐ {besoin.note}/5
+                                    </span>
+                                </div>
+                                <div style={{ background: '#f8f9ff', padding: '24px', 
+                                            borderRadius: '16px', marginBottom: '28px' }}>
+                                    <h4 style={{ color: '#667eea', marginBottom: '12px', fontWeight: '700' }}>
+                                        Son besoin :
+                                    </h4>
+                                    <p style={{ fontSize: '16px', lineHeight: '1.7' }}>{besoin.besoin}</p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+                                    <button onClick={() => {
+                                        if (besoinIdx < mockBesoins.length - 1) setBesoinIdx(besoinIdx + 1);
+                                        else { alert('Tous les besoins vus !'); setPage('dashboard'); }
+                                    }} style={{ width: '80px', height: '80px', background: 'white',
+                                              border: '4px solid #ef4444', borderRadius: '50%',
+                                              fontSize: '32px' }}>
+                                        ✗
+                                    </button>
+                                    <button onClick={() => {
+                                        alert('✅ Proposition envoyée !');
+                                        if (besoinIdx < mockBesoins.length - 1) setBesoinIdx(besoinIdx + 1);
+                                        else { alert('Tous les besoins vus !'); setPage('dashboard'); }
+                                    }} style={{ width: '80px', height: '80px', background: 'white',
+                                              border: '4px solid #10b981', borderRadius: '50%',
+                                              fontSize: '32px' }}>
+                                        ✓
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return <div>Loading...</div>;
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
